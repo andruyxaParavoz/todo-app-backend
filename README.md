@@ -1,6 +1,30 @@
+<div align="center">
+
 # Todo App Backend
 
 REST API для менеджера задач с категориями. Написан на FastAPI, данные хранятся в PostgreSQL, всё запускается через Docker Compose.
+
+[![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.x-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+<br>
+[![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?style=for-the-badge&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Swagger](https://img.shields.io/badge/Swagger_UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://swagger.io/tools/swagger-ui/)
+
+[![Last commit](https://img.shields.io/github/last-commit/andruyxaParavoz/todo-app-backend?style=flat-square)](https://github.com/andruyxaParavoz/todo-app-backend/commits)
+[![Repo size](https://img.shields.io/github/repo-size/andruyxaParavoz/todo-app-backend?style=flat-square)](https://github.com/andruyxaParavoz/todo-app-backend)
+[![Top language](https://img.shields.io/github/languages/top/andruyxaParavoz/todo-app-backend?style=flat-square)](https://github.com/andruyxaParavoz/todo-app-backend)
+
+[Стек](#стек) •
+[Архитектура](#архитектура) •
+[Запуск](#запуск-через-docker-compose) •
+[API](#api)
+
+</div>
+
+---
 
 ## Стек
 
@@ -20,10 +44,15 @@ REST API для менеджера задач с категориями. Нап�
 ## Архитектура
 
 
-```
-HTTP-запрос → routers → services → repositories → models → PostgreSQL
-                  ↑           ↑
-               schemas    исключения (TaskNotFound, CategoryNotFound)
+```mermaid
+flowchart LR
+    C([HTTP-запрос]) --> R[routers]
+    R --> S[services]
+    S --> Rep[repositories]
+    Rep --> M[models]
+    M --> DB[(PostgreSQL)]
+    Sch[[schemas]] -.-> R
+    S -. исключения TaskNotFound, CategoryNotFound .-> R
 ```
 
 | Слой | Директория | Задача |
@@ -37,6 +66,9 @@ HTTP-запрос → routers → services → repositories → models → Postg
 Зависимости (сессия БД и сервисы) передаются через `Depends`.
 
 ## Структура проекта
+
+<details>
+<summary>Показать структуру</summary>
 
 ```
 todo-app-backend/
@@ -56,6 +88,8 @@ todo-app-backend/
 ├── requirements.txt
 └── .env.example
 ```
+
+</details>
 
 ## Запуск через Docker Compose
 
@@ -82,6 +116,9 @@ todo-app-backend/
 
 Остановить проект можно командой `docker compose stop`, а остановить и удалить контейнеры — `docker compose down`. Данные базы при этом сохраняются в volume `pgdata`.
 
+> [!WARNING]
+> Команда `docker compose down -v` удалит volume вместе со всеми данными базы.
+
 ## Локальный запуск без Docker
 
 Нужен Python 3.12+ и запущенный PostgreSQL. Базу проще всего поднять из того же compose-файла: `docker compose up -d postgres`. Она будет доступна на порту `15432`.
@@ -102,21 +139,24 @@ uvicorn app.main:app --port 8080 --reload
 
 ## Переменные окружения
 
-| Переменная | Использование | Сводка |
+| Переменная | Использование | Описание |
 |---|---|---|
 | `POSTGRES_PASSWORD` | `.env`, docker-compose | пароль пользователя `postgres` |
-| `DATABASE_URL` | бэкенд | адрес БД |
+| `DATABASE_URL` | бэкенд | строка подключения к PostgreSQL |
 
 ## API
 
 ### Задачи
 
 | Метод | Путь | Описание | Код |
-|---|---|---|---|
-| `GET` | `/tasks` | список всех задач | `200` |
-| `POST` | `/tasks` | создать задачу | `201` |
-| `PATCH` | `/tasks/{task_id}` | изменить название или статус | `200` |
-| `DELETE` | `/tasks/{task_id}` | удалить задачу | `204` |
+|:---:|---|---|:---:|
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/tasks` | список всех задач | `200` |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/tasks` | создать задачу | `201` |
+| ![PATCH](https://img.shields.io/badge/PATCH-50E3C2?style=flat-square) | `/tasks/{task_id}` | изменить название или статус | `200` |
+| ![DELETE](https://img.shields.io/badge/DELETE-F93E3E?style=flat-square) | `/tasks/{task_id}` | удалить задачу | `204` |
+
+<details>
+<summary>Примеры запросов</summary>
 
 Пример создания задачи:
 
@@ -150,14 +190,16 @@ Content-Type: application/json
 }
 ```
 
+</details>
+
 ### Категории
 
 | Метод | Путь | Описание | Код |
-|---|---|---|---|
-| `GET` | `/categories` | список всех категорий | `200` |
-| `POST` | `/categories` | создать категорию (`{"name": "..."}`) | `201` |
-| `PATCH` | `/categories/{category_id}` | переименовать категорию | `200` |
-| `DELETE` | `/categories/{category_id}` | удалить категорию | `204` |
+|:---:|---|---|:---:|
+| ![GET](https://img.shields.io/badge/GET-61AFFE?style=flat-square) | `/categories` | список всех категорий | `200` |
+| ![POST](https://img.shields.io/badge/POST-49CC90?style=flat-square) | `/categories` | создать категорию (`{"name": "..."}`) | `201` |
+| ![PATCH](https://img.shields.io/badge/PATCH-50E3C2?style=flat-square) | `/categories/{category_id}` | переименовать категорию | `200` |
+| ![DELETE](https://img.shields.io/badge/DELETE-F93E3E?style=flat-square) | `/categories/{category_id}` | удалить категорию | `204` |
 
 Если объект с указанным `id` не найден, API возвращает `404`. Если данные в запросе некорректны (например, пустое название), возвращается `422`.
 
